@@ -14,20 +14,11 @@ const { redirect } = require('express/lib/response');
 const redisClient = new Redis({
   
 })
+
+// connect db
 db.connectDb();
 
-app.use(bodyParser.json());
-
-app.get('/page', validMiddleware, (req, res)=> {
-    res.send('pass middleware')
-})
-app.get('/', (req, res) => {
-    res.send('hello')
-  })
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
-
+// List item form db
 app.get('/list',  (req, res, next)=> {
   Page.find({})
     .then(page => {
@@ -37,6 +28,21 @@ app.get('/list',  (req, res, next)=> {
 })
 
 
+app.use(bodyParser.json());
+
+
+// Middleware test: if param ?level > 10 -> pass middleware
+app.get('/page', validMiddleware, (req, res)=> {
+    res.send('pass middleware')
+})
+app.get('/', (req, res) => {
+    res.send('Home')
+  })
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`)
+})
+
+// init cache
 app.get('/cache', async (req, res, next) => {
   await redisClient.set('lastime', Date.now())
   let lasttime = await redisClient.get('lastime')
@@ -45,6 +51,7 @@ app.get('/cache', async (req, res, next) => {
   res.redirect('/ioredis')
 })
 
+// ioredis test
 app.get('/ioredis',  async (req, res, next) => {
   let truePrice = 20;
   await redisClient.set('Price', 10)
